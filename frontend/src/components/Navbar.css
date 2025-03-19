@@ -1,0 +1,33 @@
+.navbar {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%; 
+    background-color: snow; 
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000; 
+  }
+  
+  .navbar a {
+    color: #252525;
+    text-decoration: none;
+    padding: 10px 15px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .nav-links {
+    margin-left: -15%;
+  }
+  
+  .nav-links li {
+    display: inline;
+  }
+
+  .logo-img {
+    height: 40px; 
+  }
+  

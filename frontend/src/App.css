@@ -1,0 +1,190 @@
+.Containner {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.Containner-pull {
+  display: flex;
+  justify-content: center;  
+  align-items: center;       
+  height: 100vh;            
+  width: 100vw;
+  background-color: white;
+  flex-direction: column;
+}
+
+.Containner-home {
+  display: flex;
+  justify-content: center;  
+  align-items: center;       
+  height: 100vh;            
+  width: 100vw;
+  background-color: white;
+  flex-direction: column;
+}
+
+.Containner-show {
+  display: flex;
+  justify-content: center;  
+  align-items: center;       
+  height: 100vh;            
+  width: 100vw;
+  background-color: white;
+  flex-direction: column;
+}
+
+.Containner-showdis {
+  display: flex;
+  justify-content: center;  
+  align-items: center;       
+  height: 100vh;            
+  width: 100vw;
+  background-color: white;
+  flex-direction: column;
+}
+
+.Containner-login {
+  display: flex;
+  justify-content: center;  
+  align-items: center;       
+  height: 100vh;            
+  width: 100vw;
+  background-color: white;
+  flex-direction: column;
+}
+
+.login-div {
+  justify-content: center;
+}
+
+.Text-W {
+  font-size: 20px;
+  color: #252525;
+}
+
+.Text-H {
+  font-size: 24px;
+  color: #252525;
+  font-weight: bold;
+}
+
+.Text-UP {
+  font-size: 16px;
+  color: #252525;
+  margin-left: -140px;
+}
+
+.Text-D {
+  font-size: 16px;
+  color: #252525;
+  margin-top: -10px;
+}
+
+.Input-Box {
+  width: 200px;
+  height: 30px;
+  background-color: snow;
+  border-radius: 8px;        
+  font-size: 14px;           
+  outline: none; 
+}
+
+.Input-div {
+  justify-items: center;
+}
+
+.Button-styleLogin {
+  width: 210px;
+  height: 40px;
+  margin-top: 30px;
+  border-radius: 8px;        
+  font-size: 14px;           
+  outline: none;
+  background-color: snow;
+}
+
+.Button-styleCon {
+  width: 210px;
+  height: 40px;
+  border-radius: 8px;  
+  margin: 15px;      
+  font-size: 14px;
+  outline: none;
+  background-color: snow;
+}
+
+.Div-butcon {
+  justify-content: center;
+}
+
+.Back-ele {
+  height: 30px;
+}
+
+.Div-back {
+  margin-top: 60px;
+  margin-left: -90%;
+}
+
+.Back-text {
+  font-size: 12px;
+  color: #252525;
+  font-weight: bold;
+  margin-left: 3px;
+  margin-top: -1px;
+}
+
+.Date-picker {
+  width: 250px;
+  height: 40px;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #252525;
+  border-radius: 5px;
+  outline: none;
+}
+
+.Text-date {
+  margin-left: -200px;
+}
+
+.Button-stylePull {
+  width: 275px;
+  height: 50px;
+  border-radius: 8px;      
+  font-size: 14px;
+  margin-top: 30px;
+  outline: none;
+  background-color: snow;
+}
+
+.Button-stylePredict {
+  width: 275px;
+  height: 50px;
+  border-radius: 8px;      
+  font-size: 14px;
+  margin-top: 10px;
+  outline: none;
+  background-color: snow;
+}
+
+.Div-Pre-Text {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.Div-pic {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

@@ -8,39 +8,39 @@ import logo from "../components/back.png";
 const ShowST = () => {
 
     const navigate = useNavigate();
-    
+
     const [selectedDateStart, setSelectedDateStart] = useState("");
     const [selectedDateStop, setSelectedDateStop] = useState("");
     const [message, setMessage] = useState("");
-    const [periodday, setPeriodday] = useState("");
+    const [period, setPeriodday] = useState("");
     const [mode, setMode] = useState("");
 
     const splitDate = (dateString1, dateString2) => {
         const [year1, month1, day1] = dateString1.split("-");
         const [year2, month2, day2] = dateString2.split("-")
-        return {day1, day2};
+        return { day1, day2 };
     };
 
     useEffect(() => {
-            if (selectedDateStart && selectedDateStop) {
-                const { day1, day2 } = splitDate(selectedDateStart, selectedDateStop);
-                setPeriodday(day2 - day1); 
-                setMode("st");
-            }
-        }, [selectedDateStart, selectedDateStop]);
+        if (selectedDateStart && selectedDateStop) {
+            const { day1, day2 } = splitDate(selectedDateStart, selectedDateStop);
+            setPeriodday(day2 - day1);
+            setMode("st");
+        }
+    }, [selectedDateStart, selectedDateStop]);
 
     const getShow = async () => {
         try {
-          const response = await axios.post("http://localhost:5000/predict", {
-            datestart: selectedDateStart,
-            datestop: selectedDateStop,
-            periodday: periodday,
-            mode: mode,
-          });
+            const response = await axios.post("http://localhost:5000/getinfoshow", {
+                datestart: selectedDateStart,
+                datestop: selectedDateStop,
+                period: period,
+                mode: mode,
+            });
 
-          navigate("/showdis");
+            navigate("/showdis");
 
-          setMessage(response.data.message);
+            setMessage(response.data.message);
         } catch (error) {
             console.error("Error:", error);
             setMessage("Failed to show");
@@ -49,36 +49,39 @@ const ShowST = () => {
 
     return (
         <div className="Containner-show">
-            <p>Standing Contract - Show images</p>
-            <p className='Text-date'>Day - Start</p>
+            <p className='Text-PS-H-ST' style={{ alignSelf: 'center' }}>STANDING CONTRACT</p>
+            <p className='Text-PS-H-ST' style={{ marginTop: '-35px', alignSelf: 'center' }}>SHOW IMAGES</p>
+            <p style={{ marginLeft: '-480px' }}>Day - Start</p>
             <input
                 type="date"
                 value={selectedDateStart}
                 onChange={(e) => setSelectedDateStart(e.target.value)}
-                min="2024-01-01" 
-                max="2025-12-31" 
-                className="Date-picker"
+                min="2024-01-01"
+                max="2025-12-31"
+                className='Date-picker'
+                required
             />
-            <p className='Text-date'>Day - Stop</p>
+            <p style={{ marginLeft: '-480px' }}>Day - Stop</p>
             <input
                 type="date"
                 value={selectedDateStop}
                 onChange={(e) => setSelectedDateStop(e.target.value)}
-                min="2024-01-01" 
-                max="2025-12-31" 
-                className="Date-picker"
+                min="2024-01-01"
+                max="2025-12-31"
+                className='Date-picker'
+                required
             />
             <button
-                className='Button-stylePull'
+                className='Button-Pull'
                 onClick={getShow}
             >
-            Show Images
+                SHOW
             </button>
-            <div className='Div-back'>
-            <Link to="/show" className="logo">
-                <img src={logo} alt="" className="Back-ele" />
-            </Link>
-            <p className='Back-text'>back</p>
+            <div className='Div-back' style={{ position: 'fixed' }}>
+                <Link to="/show" className="logo">
+                    <img src={logo} alt="" className="Back-ele" style={{}} />
+                    <p className='Back-text' style={{ position: 'fixed' }}>BACK</p>
+                </Link>
             </div>
         </div>
     );

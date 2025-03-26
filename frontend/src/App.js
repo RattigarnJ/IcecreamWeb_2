@@ -10,27 +10,33 @@ import ShowLD from './pages/showld'
 import PullST from './pages/pullst'
 import PullLD from './pages/pullld'
 import ShowDis from './pages/showdis'
+import PullSuc from './pages/pullsuccess'
 
 function App() {
 
   return (
     <div className="Containner">
       <Router>
-      <Navbar />
-      <div style={{ paddingTop: "60px" }}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/pull" element={<Pull />} />
-        <Route path="/show" element={<Show />} />
-        <Route path="/login" element={<Login />} />
-        <Route path='/showst' element={<ShowST />} />
-        <Route path='/showld' element={<ShowLD />} />
-        <Route path='/pullst' element={<PullST />} />
-        <Route path='/pullld' element={<PullLD />} />
-        <Route path='/showdis' element={<ShowDis />} />
-      </Routes>
-      </div>
-      </Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/*" element={
+            <>
+              <Navbar />
+              <Routes>
+                <Route path="/home" element={<Home />} />
+                <Route path="/pull" element={<Pull />} />
+                <Route path="/show" element={<Show />} />
+                <Route path="/showst" element={<ShowST />} />
+                <Route path="/showld" element={<ShowLD />} />
+                <Route path="/pullst" element={<PullST />} />
+                <Route path="/pullld" element={<PullLD />} />
+                <Route path="/showdis" element={<ShowDis />} />
+                <Route path="/pullsuccess" element={<PullSuc />} />
+              </Routes>
+            </>
+          } />
+        </Routes>
+        </Router>
     </div>
   );
 }

@@ -2,29 +2,33 @@ import React from "react";
 import { Image } from "react";
 import { Link } from "react-router-dom";
 import "./Navbar.css";
-import logo from "./ice-cream.png";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleHome = () => {
+    navigate("/home");
+  };
+
   return (
     <nav className="navbar">
-        <div className="navbar-left">
-        <Link to="/" className="logo">
-        <img src={logo} alt="" className="logo-img" />
-        </Link>
-        </div>
-        <div className="navbar-right">
+      <div className="navbar-left">
+        <p style={{ fontWeight: 'bold', fontSize: '16px', cursor:'pointer' }} onClick={handleHome}>ICE CREAM CABINET</p>
+      </div>
+      <div className="navbar-right">
         <ul className="nav-links">
-            <li>
-            <Link to="/pull">Pull</Link>
-            </li>
-            <li>
-            <Link to="/show">Show</Link>
-            </li>
-            <li>
-            <Link to="/login">Login</Link>
-            </li>
+          <li>
+            <Link to="/pull">PULL</Link>
+          </li>
+          <li>
+            <Link to="/show">SHOW</Link>
+          </li>
+          <li>
+            <Link to="/">LOGOUT</Link>
+          </li>
         </ul>
-        </div>
+      </div>
     </nav>
   );
 };

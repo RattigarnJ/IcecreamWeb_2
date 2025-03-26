@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import logo from "../components/back.png";
-import logosearch from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\search.png"
+import logosearch from "../components/search.png"
 
 const ShowST = () => {
 

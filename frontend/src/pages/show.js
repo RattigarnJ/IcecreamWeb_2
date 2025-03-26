@@ -2,8 +2,8 @@ import '../App.css';
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoup from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\up.png"
-import logodown from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\down.png"
+import logoup from "../components/up.png"
+import logodown from "../components/down.png"
 
 const Show = () => {
 

@@ -2,20 +2,39 @@ import '../App.css';
 import React from "react";
 import { useState, button, } from "react";
 import { useNavigate } from "react-router-dom";
-import logohide from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\hide.png"
-import logoshow from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\show.png"
+import logohide from "../components/hide.png"
+import logoshow from "../components/show.png"
 
 const Login = () => {
-
     const navigate = useNavigate();
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
 
-    const loginclick = () => {
-        alert(`Logging in as: ${username} and ${password}`);
-        navigate("/home");
+    const loginclick = async (e) => {
+        e.preventDefault(); // ป้องกันการ reload หน้า
+        setError("");
+        try {
+            const response = await fetch("http://localhost:5000/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Login failed");
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("role", data.role);
+
+            navigate("/home");
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     const togglePasswordVisibility = () => {
@@ -24,16 +43,15 @@ const Login = () => {
 
     return (
         <div className="login-container">
-            {/* Left Section: Welcome Message */}
             <div className="welcome-section">
                 <h1>WELCOME TO</h1>
-                <h1 style={{marginTop: '410px'}}>ICE CREAM</h1>
+                <h1 style={{ marginTop: '410px' }}>ICE CREAM</h1>
                 <h1>CABINET</h1>
             </div>
-            {/* Right Section: Login Form */}
             <div className="login-section">
                 <h2>LOGIN</h2>
-                <form className="login-form">
+                {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
+                <form className="login-form" onSubmit={loginclick}>
                     <label htmlFor="username">Username</label>
                     <input
                         type="text"
@@ -48,18 +66,13 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
-                    <></>
                     <img src={showPassword ? logoshow : logohide} 
-                    style={{ width: '15px', marginTop: '-28px', marginLeft: '360px', cursor: 'pointer' }}
-                    alt={showPassword ? 'Hide password' : 'Show password'}
-                    onClick={togglePasswordVisibility}
+                        style={{ width: '15px', marginTop: '-28px', marginLeft: '360px', cursor: 'pointer' }}
+                        alt={showPassword ? 'Hide password' : 'Show password'}
+                        onClick={togglePasswordVisibility}
                     />
-                    <button 
-                    type="submit" 
-                    style={{fontWeight: 'lighter'}}
-                    onClick={loginclick}
-                    >
-                    Login
+                    <button type="submit" style={{ fontWeight: 'lighter' }}>
+                        Login
                     </button>
                 </form>
             </div>

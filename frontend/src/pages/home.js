@@ -2,8 +2,8 @@ import '../App.css';
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoload from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\download.png";
-import logoshow from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\dashboard.png";
+import logoload from "../components/download.png";
+import logoshow from "../components/dashboard.png";
 
 const Home = () => {
 

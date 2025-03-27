@@ -11,7 +11,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import io
 import datetime
-
+import jwt
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app)  # ✅ อนุญาตให้ React เรียก API ได้
@@ -20,6 +21,53 @@ datestart = ""
 datestop = ""
 periodday = ""
 mode = ""
+
+app.config['SECRET_KEY'] = 'your_secret_key'  # ใช้สำหรับเข้ารหัส JWT
+
+# ฐานข้อมูลผู้ใช้จำลอง
+users = {
+    "Admin": {"password": "0000", "role": "Admin"},
+    "U1": {"password": "1", "role": "User"}
+}
+
+# Middleware ตรวจสอบ token
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'error': 'Token is missing!'}), 403
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = users.get(data['username'])
+            if not current_user:
+                return jsonify({'error': 'User not found!'}), 403
+        except:
+            return jsonify({'error': 'Token is invalid!'}), 403
+        return f(current_user, *args, **kwargs)
+    return decorated
+
+# API Login
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    user = users.get(username)
+    if not user or user['password'] != password:
+        return jsonify({'error': 'Invalid credentials'}), 401
+    
+    token = jwt.encode({'username': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, 
+                       app.config['SECRET_KEY'], algorithm="HS256")
+    return jsonify({'token': token.decode('utf-8'), 'role': user['role']})
+
+# API Protected Route
+@app.route('/protected', methods=['GET'])
+@token_required
+def protected_route(current_user):
+    return jsonify({'message': 'This is a protected route', 'user': current_user})
+
 
 # ---------------------------- RPA Part
 @app.route('/run_rpa', methods=['POST'])
@@ -64,52 +112,6 @@ def run_rpa():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
-# ---------------------------- AI PREDICTION Part
-# Send data for find part that user want to predict
-# def getdateshow():
-#     global datestart
-#     global datestop
-#     global periodday
-#     global mode
-
-#     data = request.json
-#     datestart = str(data.get("datestart", "")).strip()
-#     datestop = str(data.get("datestop", "")).strip()
-#     periodday = str(data.get("periodday", "")).strip()
-#     mode = str(data.get("mode", "")).strip()
-
-#     return jsonify({"message": "บันทึก", "datestart": datestart ,"datestop": datestop ,"periodday": periodday ,"mode": mode })
-
-# def load_images_from_directory(root_dir):
-#     image_paths = []
-#     for subdir, _, files in os.walk(root_dir):
-#         for file in files:
-#             if file.lower().endswith((".png", ".jpg", ".jpeg")):
-#                 image_paths.append(os.path.join(subdir, file))
-#     return image_paths
-
-# def load_images_by_date(root_dir, start_date, end_date):
-#     image_paths = []
-
-#     # วนลูปโฟลเดอร์ใน root_dir
-#     for folder in sorted(os.listdir(root_dir)):
-#         folder_path = os.path.join(root_dir, folder)
-
-#         # ตรวจสอบว่าเป็นโฟลเดอร์และชื่อโฟลเดอร์เป็นรูปแบบ YYYY-MM-DD
-#         try:
-#             folder_date = datetime.datetime.strptime(folder, "%Y-%m-%d").date()
-#         except ValueError:
-#             continue  # ข้ามโฟลเดอร์ที่ชื่อไม่ตรงรูปแบบ
-
-#         # กรองเฉพาะวันที่อยู่ในช่วงที่เลือก
-#         if start_date <= folder_date <= end_date:
-#             for file in os.listdir(folder_path):
-#                 if file.lower().endswith((".png", ".jpg", ".jpeg")):
-#                     image_paths.append(os.path.join(folder, file))
-
-#     return image_paths
-
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()

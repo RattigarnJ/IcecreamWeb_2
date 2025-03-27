@@ -13,6 +13,8 @@ import io
 import datetime
 import jwt
 from functools import wraps
+import bcrypt
+from database import init_db, get_user
 
 app = Flask(__name__)
 CORS(app)  # ✅ อนุญาตให้ React เรียก API ได้
@@ -24,11 +26,9 @@ mode = ""
 
 app.config['SECRET_KEY'] = 'your_secret_key'  # ใช้สำหรับเข้ารหัส JWT
 
-# ฐานข้อมูลผู้ใช้จำลอง
-users = {
-    "Admin": {"password": "0000", "role": "Admin"},
-    "U1": {"password": "1", "role": "User"}
-}
+# เรียกใช้งาน database
+init_db()
+
 
 # Middleware ตรวจสอบ token
 def token_required(f):
@@ -39,7 +39,7 @@ def token_required(f):
             return jsonify({'error': 'Token is missing!'}), 403
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = users.get(data['username'])
+            current_user = get_user(data['username'])
             if not current_user:
                 return jsonify({'error': 'User not found!'}), 403
         except:
@@ -54,7 +54,7 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    user = users.get(username)
+    user = get_user(username)
     if not user or user['password'] != password:
         return jsonify({'error': 'Invalid credentials'}), 401
     

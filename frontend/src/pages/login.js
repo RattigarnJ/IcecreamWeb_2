@@ -1,20 +1,18 @@
 import '../App.css';
-import React from "react";
-import { useState, button, } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logohide from "../components/hide.png"
-import logoshow from "../components/show.png"
+import logohide from "../components/hide.png";
+import logoshow from "../components/show.png";
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
     const navigate = useNavigate();
-
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
     const loginclick = async (e) => {
-        e.preventDefault(); // ป้องกันการ reload หน้า
+        e.preventDefault();
         setError("");
         try {
             const response = await fetch("http://localhost:5000/login", {
@@ -29,16 +27,12 @@ const Login = () => {
             }
 
             localStorage.setItem("token", data.token);
-            localStorage.setItem("role", data.role);
+            setIsAuthenticated(true);  // ✅ อัปเดต isAuthenticated
+            navigate("/home", { replace: true });
 
-            navigate("/home");
         } catch (err) {
             setError(err.message);
         }
-    };
-
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
     };
 
     return (
@@ -53,23 +47,13 @@ const Login = () => {
                 {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
                 <form className="login-form" onSubmit={loginclick}>
                     <label htmlFor="username">Username</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
+                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
                     <label htmlFor="password">Password</label>
-                    <input
-                        type={showPassword ? 'text' : 'password'}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
+                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required />
                     <img src={showPassword ? logoshow : logohide} 
                         style={{ width: '15px', marginTop: '-28px', marginLeft: '360px', cursor: 'pointer' }}
                         alt={showPassword ? 'Hide password' : 'Show password'}
-                        onClick={togglePasswordVisibility}
+                        onClick={() => setShowPassword(!showPassword)}
                     />
                     <button type="submit" style={{ fontWeight: 'lighter' }}>
                         Login

@@ -14,11 +14,12 @@ import ShowDis from './pages/showdis';
 import PullSuc from './pages/pullsuccess';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
+    const checkAuth = () => setIsAuthenticated(!!localStorage.getItem("token"));
+    window.addEventListener("storage", checkAuth); // ✅ ฟัง event localStorage เปลี่ยนค่า
+    return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
   function LayoutWithNavbar({ children }) {
@@ -26,7 +27,7 @@ function App() {
     const showNavbar = isAuthenticated && location.pathname !== "/";
     return (
       <>
-        {showNavbar && <Navbar />}
+        {showNavbar && <Navbar setIsAuthenticated={setIsAuthenticated} />}
         {children}
       </>
     );
@@ -37,7 +38,7 @@ function App() {
       <Router>
         <LayoutWithNavbar>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={isAuthenticated ? <Navigate to="/home" replace /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/home" element={isAuthenticated ? <Home /> : <Navigate to="/" replace />} />
             <Route path="/pull" element={isAuthenticated ? <Pull /> : <Navigate to="/" replace />} />
             <Route path="/show" element={isAuthenticated ? <Show /> : <Navigate to="/" replace />} />

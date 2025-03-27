@@ -24,7 +24,7 @@ const Navbar = ({ setIsAuthenticated }) => {
         <ul className="nav-links">
           {role == "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
             <li>
-              <Link to="/menber">MENBER</Link>
+              <Link to="/member">MEMBER</Link>
             </li>
           )}
           {role !== "User" && ( // ✅ ซ่อน "PULL" สำหรับ User

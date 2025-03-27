@@ -15,9 +15,40 @@ import jwt
 from functools import wraps
 import bcrypt
 from database import init_db, get_user
+import sqlite3
+from werkzeug.security import generate_password_hash
+
 
 app = Flask(__name__)
 CORS(app)  # ✅ อนุญาตให้ React เรียก API ได้
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+    role = data.get("role")
+
+    if not username or not password or not role:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    # เช็คดูว่ามี username นี้ในฐานข้อมูลแล้วหรือยัง
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        conn.close()
+        return jsonify({"error": "Username already exists"}), 400
+
+    # เก็บรหัสผ่านเป็น plain text ในฐานข้อมูล
+    cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                   (username, password, role))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "User registered successfully"}), 201
 
 datestart = ""
 datestop = ""
@@ -29,6 +60,7 @@ app.config['SECRET_KEY'] = 'your_secret_key'  # ใช้สำหรับเ�
 # เรียกใช้งาน database
 init_db()
 
+DATABASE = "users.db"
 
 # Middleware ตรวจสอบ token
 def token_required(f):
@@ -55,18 +87,99 @@ def login():
     password = data.get('password')
 
     user = get_user(username)
-    if not user or user['password'] != password:
+    if not user:
         return jsonify({'error': 'Invalid credentials'}), 401
     
-    token = jwt.encode({'username': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, 
-                       app.config['SECRET_KEY'], algorithm="HS256")
-    return jsonify({'token': token.decode('utf-8'), 'role': user['role']})
-
+    # ตรวจสอบรหัสผ่านด้วย bcrypt
+    if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+        # รหัสผ่านถูกต้อง
+        token = jwt.encode({'username': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, 
+                           app.config['SECRET_KEY'], algorithm="HS256")
+        return jsonify({'token': token.decode('utf-8'), 'role': user['role']})
+    else:
+        # รหัสผ่านไม่ถูกต้อง
+        return jsonify({'error': 'Invalid credentials'}), 401
+    
 # API Protected Route
 @app.route('/protected', methods=['GET'])
 @token_required
 def protected_route(current_user):
     return jsonify({'message': 'This is a protected route', 'user': current_user})
+
+
+def get_db_connection():
+    """ สร้างการเชื่อมต่อฐานข้อมูล """
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    """ ดึงข้อมูล user ทั้งหมด """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, password, role FROM users")
+    users = cursor.fetchall()
+    conn.close()
+
+    return jsonify([dict(user) for user in users])
+
+@app.route('/update-user', methods=['POST'])
+def update_user():
+    """ อัปเดตข้อมูล user """
+    data = request.json
+    user_id = data.get("id")
+    new_username = data.get("username")
+    new_password = data.get("password")
+    new_role = data.get("role")
+
+    if not user_id or not new_username or not new_password or not new_role:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            UPDATE users 
+            SET username = ?, password = ?, role = ? 
+            WHERE id = ?
+        """, (new_username, new_password, new_role, user_id))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "User updated successfully"})
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({"error": "Username already exists"}), 400
+    
+@app.route('/delete-user/<int:user_id>', methods=['DELETE'])
+@token_required
+def delete_user(current_user, user_id):
+    """ ลบข้อมูลผู้ใช้จากฐานข้อมูล """
+    # ตรวจสอบสิทธิ์ของผู้ใช้ก่อนที่จะลบ
+    if current_user['role'] not in ['Dev', 'Admin']:
+        return jsonify({"error": "Unauthorized access"}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # ตรวจสอบว่า user_id ที่จะลบมีอยู่ในฐานข้อมูลหรือไม่
+    cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+    user_to_delete = cursor.fetchone()
+    
+    if not user_to_delete:
+        conn.close()
+        return jsonify({"error": "User not found"}), 404
+
+    try:
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "User deleted successfully"}), 200
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": f"Failed to delete user: {str(e)}"}), 500
+
 
 
 # ---------------------------- RPA Part

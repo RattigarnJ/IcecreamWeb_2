@@ -4,32 +4,31 @@ import { useNavigate } from "react-router-dom";
 import logohide from "../components/hide.png";
 import logoshow from "../components/show.png";
 
-const Login = ({ setIsAuthenticated }) => {
+const Register = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [role, setRole] = useState("User"); // Default role เป็น User
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
-    const loginclick = async (e) => {
+    const registerClick = async (e) => {
         e.preventDefault();
         setError("");
         try {
-            const response = await fetch("http://localhost:5000/login", {
+            const response = await fetch("http://localhost:5000/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, role }) // ส่ง username, password และ role ไปยัง backend
             });
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || "Login failed");
+                throw new Error(data.error || "Registration failed");
             }
 
-            localStorage.setItem("token", data.token);
-            setIsAuthenticated(true);  // ✅ อัปเดต isAuthenticated
-            navigate("/home", { replace: true });
-
+            alert("✅ Registration successful");
+            navigate("/", { replace: true });
         } catch (err) {
             setError(err.message);
         }
@@ -43,20 +42,40 @@ const Login = ({ setIsAuthenticated }) => {
                 <h1>CABINET</h1>
             </div>
             <div className="login-section">
-                <h2>Sign In</h2>
+                <h2>Sign Up</h2>
                 {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
-                <form className="login-form" onSubmit={loginclick}>
+                <form className="login-form" onSubmit={registerClick}>
                     <label htmlFor="username">Username</label>
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                    <input 
+                        type="text" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                        required 
+                    />
+                    
                     <label htmlFor="password">Password</label>
-                    <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <img src={showPassword ? logoshow : logohide} 
+                    <input 
+                        type={showPassword ? 'text' : 'password'} 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)} 
+                        required 
+                    />
+                    <img 
+                        src={showPassword ? logoshow : logohide} 
                         style={{ width: '15px', marginTop: '-28px', marginLeft: '360px', cursor: 'pointer' }}
                         alt={showPassword ? 'Hide password' : 'Show password'}
                         onClick={() => setShowPassword(!showPassword)}
                     />
+
+                    <label htmlFor="role">Role</label>
+                    <select value={role} onChange={(e) => setRole(e.target.value)}>
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Dev">Dev</option>
+                    </select>
+                    
                     <button type="submit" style={{ fontWeight: 'lighter' }}>
-                        Sign In
+                        Sign Up
                     </button>
                 </form>
             </div>
@@ -64,4 +83,4 @@ const Login = ({ setIsAuthenticated }) => {
     );
 };
 
-export default Login;
+export default Register;

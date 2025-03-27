@@ -14,7 +14,7 @@ import PullST from './pages/pullst';
 import PullLD from './pages/pullld';
 import ShowDis from './pages/showdis';
 import PullSuc from './pages/pullsuccess';
-import Menber from './pages/menber';
+import Member from './pages/member';
 
 function PrivateRoute({ children, allowedRoles }) {
   const token = localStorage.getItem("token");
@@ -56,7 +56,7 @@ function App() {
               element={isAuthenticated ? <Navigate to={localStorage.getItem("role") === "Dev" || localStorage.getItem("role") === "Admin" ? "/homeAdmin" : "/home"} replace /> : <Login setIsAuthenticated={setIsAuthenticated} />} 
             />
             <Route path="/register" element={<PrivateRoute allowedRoles={["Dev"]}><Signin /></PrivateRoute>} />
-            <Route path="/menber" element={<PrivateRoute allowedRoles={["Dev"]}><Menber /></PrivateRoute>} />
+            <Route path="/member" element={<PrivateRoute allowedRoles={["Dev"]}><Member /></PrivateRoute>} />
             <Route path="/home" element={<PrivateRoute allowedRoles={["Dev", "User"]}><Home /></PrivateRoute>} />
             <Route path="/homeAdmin" element={<PrivateRoute allowedRoles={["Dev", "Admin"]}><HomeAdmin /></PrivateRoute>} />
             <Route path="/pull" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><Pull /></PrivateRoute>} />

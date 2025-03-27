@@ -27,8 +27,9 @@ const Login = ({ setIsAuthenticated }) => {
             }
 
             localStorage.setItem("token", data.token);
+            localStorage.setItem("role", data.role);  // ✅ บันทึก role
             setIsAuthenticated(true);  // ✅ อัปเดต isAuthenticated
-            navigate("/home", { replace: true });
+            navigate(data.role === "Dev" ? "/homeAdmin" : "/home", { replace: true });
 
         } catch (err) {
             setError(err.message);

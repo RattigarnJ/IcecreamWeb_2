@@ -20,7 +20,8 @@ def init_db():
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
         cursor.executemany("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [
-            ("Admin", "0000", "Admin"),
+            ("Dev", "010", "Dev"),
+            ("Admin", "0", "Admin"),
             ("U1", "1", "User")
         ])
         conn.commit()

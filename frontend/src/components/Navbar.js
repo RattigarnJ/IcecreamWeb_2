@@ -4,9 +4,11 @@ import "./Navbar.css";
 
 const Navbar = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
+  const role = localStorage.getItem("role");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role"); // ✅ ลบ role ออกจาก localStorage
     setIsAuthenticated(false); // ✅ อัปเดต state
     navigate("/", { replace: true });
   };
@@ -20,12 +22,24 @@ const Navbar = ({ setIsAuthenticated }) => {
       </div>
       <div className="navbar-right">
         <ul className="nav-links">
-          <li>
-            <Link to="/pull">PULL</Link>
-          </li>
+          {role == "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
+            <li>
+              <Link to="/menber">MENBER</Link>
+            </li>
+          )}
+          {role !== "User" && ( // ✅ ซ่อน "PULL" สำหรับ User
+            <li>
+              <Link to="/pull">PULL</Link>
+            </li>
+          )}
           <li>
             <Link to="/show">SHOW</Link>
           </li>
+          {role == "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
+          <li>
+            <Link to="/register">Sign In</Link>
+          </li>
+          )}
           <li>
             <button onClick={handleLogout} style={{ background: "none", border: "none", cursor: "pointer", color: "red" }}>
               LOGOUT

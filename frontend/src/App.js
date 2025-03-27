@@ -1,42 +1,56 @@
 import './App.css';
 import Navbar from './components/Navbar';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Pull from './pages/pull'
-import Home from './pages/home'
-import Show from './pages/show'
-import Login from './pages/login'
-import ShowST from './pages/showst'
-import ShowLD from './pages/showld'
-import PullST from './pages/pullst'
-import PullLD from './pages/pullld'
-import ShowDis from './pages/showdis'
-import PullSuc from './pages/pullsuccess'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Pull from './pages/pull';
+import Home from './pages/home';
+import Show from './pages/show';
+import Login from './pages/login';
+import ShowST from './pages/showst';
+import ShowLD from './pages/showld';
+import PullST from './pages/pullst';
+import PullLD from './pages/pullld';
+import ShowDis from './pages/showdis';
+import PullSuc from './pages/pullsuccess';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+  function LayoutWithNavbar({ children }) {
+    const location = useLocation();
+    const showNavbar = isAuthenticated && location.pathname !== "/";
+    return (
+      <>
+        {showNavbar && <Navbar />}
+        {children}
+      </>
+    );
+  }
 
   return (
-    <div className="Containner">
+    <div className="Container">
       <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/*" element={
-            <>
-              <Navbar />
-              <Routes>
-                <Route path="/home" element={<Home />} />
-                <Route path="/pull" element={<Pull />} />
-                <Route path="/show" element={<Show />} />
-                <Route path="/showst" element={<ShowST />} />
-                <Route path="/showld" element={<ShowLD />} />
-                <Route path="/pullst" element={<PullST />} />
-                <Route path="/pullld" element={<PullLD />} />
-                <Route path="/showdis" element={<ShowDis />} />
-                <Route path="/pullsuccess" element={<PullSuc />} />
-              </Routes>
-            </>
-          } />
-        </Routes>
-        </Router>
+        <LayoutWithNavbar>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/home" element={isAuthenticated ? <Home /> : <Navigate to="/" replace />} />
+            <Route path="/pull" element={isAuthenticated ? <Pull /> : <Navigate to="/" replace />} />
+            <Route path="/show" element={isAuthenticated ? <Show /> : <Navigate to="/" replace />} />
+            <Route path="/showst" element={isAuthenticated ? <ShowST /> : <Navigate to="/" replace />} />
+            <Route path="/showld" element={isAuthenticated ? <ShowLD /> : <Navigate to="/" replace />} />
+            <Route path="/pullst" element={isAuthenticated ? <PullST /> : <Navigate to="/" replace />} />
+            <Route path="/pullld" element={isAuthenticated ? <PullLD /> : <Navigate to="/" replace />} />
+            <Route path="/showdis" element={isAuthenticated ? <ShowDis /> : <Navigate to="/" replace />} />
+            <Route path="/pullsuccess" element={isAuthenticated ? <PullSuc /> : <Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </LayoutWithNavbar>
+      </Router>
     </div>
   );
 }

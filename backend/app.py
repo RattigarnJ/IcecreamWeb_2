@@ -1,5 +1,7 @@
-from flask import Flask, request , jsonify, send_file
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS  
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 import subprocess
 import sys
 import os
@@ -20,20 +22,169 @@ from werkzeug.security import generate_password_hash
 
 
 app = Flask(__name__)
-CORS(app)  # ✅ อนุญาตให้ React เรียก API ได้
+CORS(app)
+
+app.config['SECRET_KEY'] = 'your_secret_key'
+DATABASE = "users.db"
 
 
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+
+# -------------------- Database Model -------------------- #
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
+    plain_password = db.Column(db.String(128), nullable=True)  # ✅ เพิ่มคอลัมน์
+    role = db.Column(db.String(20), nullable=False)
+
+# -------------------- Database Functions -------------------- #
+def get_db_connection():
+    """ สร้างการเชื่อมต่อฐานข้อมูล """
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def get_user(username):
+    """ ดึงข้อมูลผู้ใช้จากฐานข้อมูล """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def init_db():
+    """ สร้างตารางผู้ใช้ในฐานข้อมูล ถ้าไม่มี """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            plain_password TEXT,  -- ✅ เพิ่มคอลัมน์นี้
+            role TEXT NOT NULL
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+    # เพิ่มผู้ใช้ 'Dev' ในกรณีที่ไม่มี
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", ("Dev",))
+    if not cursor.fetchone():
+        hashed_password = bcrypt.hashpw("10110".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        cursor.execute("INSERT INTO users (username, password, plain_password,role) VALUES (?, ?, ?, ?)",
+                       ("Dev", hashed_password, 10110 ,"Dev"))
+        conn.commit()
+    conn.close()
+
+def hash_passwords():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT username, password FROM users")
+    users = cursor.fetchall()
+
+    for username, password in users:
+        if isinstance(password, int) or not password.startswith("$2b$"):  # ตรวจสอบว่ารหัสผ่านถูกเข้ารหัสหรือยัง
+            password = str(password)  # แปลงเป็น string เผื่อเป็นตัวเลข
+            hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            cursor.execute("UPDATE users SET password = ? WHERE username = ?", (hashed_password, username))
+            print(f"Updated {username}'s password to bcrypt")
+
+    conn.commit()
+    conn.close()
+
+# -------------------- Middleware ตรวจสอบ token -------------------- #
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+
+        if token and token.startswith("Bearer "):
+            token = token.split(" ")[1]  # แยกเฉพาะ token ออกมา
+
+        if not token:
+            print("⛔ No token provided")
+            print("🔍 Request Headers:", request.headers)  # Debug headers
+            return jsonify({'error': 'Token is missing!'}), 403
+        
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = get_user(data['username'])
+
+            if not current_user:
+                print("⛔ User not found")
+                return jsonify({'error': 'User not found!'}), 403
+            
+            current_user = dict(current_user)
+            print(f"🔍 Token Verified: {current_user}")
+
+        except jwt.ExpiredSignatureError:
+            print("⛔ Token expired")
+            return jsonify({'error': 'Token has expired!'}), 403
+        except jwt.InvalidTokenError:
+            print("⛔ Invalid token")
+            return jsonify({'error': 'Token is invalid!'}), 403
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+
+        if token and token.startswith("Bearer "):
+            token = token.split(" ")[1]  # แยกเฉพาะ token ออกมา
+
+        if not token:
+            print("⛔ No token provided")
+            print("🔍 Request Headers:", request.headers)  # Debug headers
+            return jsonify({'error': 'Token is missing!'}), 403
+        
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = get_user(data['username'])
+
+            if not current_user:
+                print("⛔ User not found")
+                return jsonify({'error': 'User not found!'}), 403
+            
+            current_user = dict(current_user)
+            print(f"🔍 Token Verified: {current_user}")
+
+        except jwt.ExpiredSignatureError:
+            print("⛔ Token expired")
+            return jsonify({'error': 'Token has expired!'}), 403
+        except jwt.InvalidTokenError:
+            print("⛔ Invalid token")
+            return jsonify({'error': 'Token is invalid!'}), 403
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
+# -------------------- API Register -------------------- #
 @app.route('/register', methods=['POST'])
 def register():
     data = request.json
     username = data.get("username")
-    password = data.get("password")
+    password = data.get("password")  # ✅ รหัสผ่านที่กรอก
     role = data.get("role")
 
     if not username or not password or not role:
         return jsonify({"error": "Missing required fields"}), 400
 
-    # เช็คดูว่ามี username นี้ในฐานข้อมูลแล้วหรือยัง
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
@@ -43,43 +194,20 @@ def register():
         conn.close()
         return jsonify({"error": "Username already exists"}), 400
 
-    # เก็บรหัสผ่านเป็น plain text ในฐานข้อมูล
-    cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-                   (username, password, role))
+    # ✅ เก็บ plain_password และ password ที่ถูกเข้ารหัส
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    cursor.execute("""
+        INSERT INTO users (username, password, plain_password, role) 
+        VALUES (?, ?, ?, ?)
+    """, (username, hashed_password, password, role))
+    
     conn.commit()
     conn.close()
     return jsonify({"message": "User registered successfully"}), 201
 
-datestart = ""
-datestop = ""
-periodday = ""
-mode = ""
 
-app.config['SECRET_KEY'] = 'your_secret_key'  # ใช้สำหรับเข้ารหัส JWT
-
-# เรียกใช้งาน database
-init_db()
-
-DATABASE = "users.db"
-
-# Middleware ตรวจสอบ token
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token:
-            return jsonify({'error': 'Token is missing!'}), 403
-        try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = get_user(data['username'])
-            if not current_user:
-                return jsonify({'error': 'User not found!'}), 403
-        except:
-            return jsonify({'error': 'Token is invalid!'}), 403
-        return f(current_user, *args, **kwargs)
-    return decorated
-
-# API Login
+# -------------------- API Login -------------------- #
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -89,41 +217,36 @@ def login():
     user = get_user(username)
     if not user:
         return jsonify({'error': 'Invalid credentials'}), 401
-    
-    # ตรวจสอบรหัสผ่านด้วย bcrypt
+
+    print(f"Stored password in DB: {user['password']}")  # ✅ Debug จุดนี้
+
+    # ตรวจสอบรหัสผ่านที่ถูกเข้ารหัส
     if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-        # รหัสผ่านถูกต้อง
-        token = jwt.encode({'username': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)}, 
-                           app.config['SECRET_KEY'], algorithm="HS256")
+        token = jwt.encode({'username': username, 'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)},
+                   app.config['SECRET_KEY'], algorithm="HS256")
+
         return jsonify({'token': token.decode('utf-8'), 'role': user['role']})
     else:
-        # รหัสผ่านไม่ถูกต้อง
         return jsonify({'error': 'Invalid credentials'}), 401
-    
+
 # API Protected Route
 @app.route('/protected', methods=['GET'])
 @token_required
 def protected_route(current_user):
     return jsonify({'message': 'This is a protected route', 'user': current_user})
 
-
-def get_db_connection():
-    """ สร้างการเชื่อมต่อฐานข้อมูล """
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
+# -------------------- API ดึงรายชื่อผู้ใช้ -------------------- #
 @app.route('/users', methods=['GET'])
 def get_users():
-    """ ดึงข้อมูล user ทั้งหมด """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, username, password, role FROM users")
+    cursor.execute("SELECT id, username, password, plain_password, role FROM users")
     users = cursor.fetchall()
     conn.close()
 
-    return jsonify([dict(user) for user in users])
+    return jsonify([dict(user) for user in users])  # ✅ ส่ง plain_password ไปด้วย
 
+# -------------------- API อัปเดตผู้ใช้ -------------------- #
 @app.route('/update-user', methods=['POST'])
 def update_user():
     """ อัปเดตข้อมูล user """
@@ -140,11 +263,14 @@ def update_user():
     cursor = conn.cursor()
 
     try:
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
         cursor.execute("""
             UPDATE users 
-            SET username = ?, password = ?, role = ? 
+            SET username = ?, password = ?, plain_password = ?, role = ? 
             WHERE id = ?
-        """, (new_username, new_password, new_role, user_id))
+        """, (new_username, hashed_password, new_password, new_role, user_id))
+
         conn.commit()
         conn.close()
         return jsonify({"message": "User updated successfully"})
@@ -152,18 +278,24 @@ def update_user():
         conn.close()
         return jsonify({"error": "Username already exists"}), 400
     
+
+
+#-----------------------------DELETE------------------------------------------
+
 @app.route('/delete-user/<int:user_id>', methods=['DELETE'])
 @token_required
 def delete_user(current_user, user_id):
     """ ลบข้อมูลผู้ใช้จากฐานข้อมูล """
-    # ตรวจสอบสิทธิ์ของผู้ใช้ก่อนที่จะลบ
+    print(f"🔍 Current User: {current_user}")
+    print(f"🔍 Current Role: {current_user['role']}")
+    
     if current_user['role'] not in ['Dev', 'Admin']:
+        print("⛔ Unauthorized access")
         return jsonify({"error": "Unauthorized access"}), 403
 
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # ตรวจสอบว่า user_id ที่จะลบมีอยู่ในฐานข้อมูลหรือไม่
     cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     user_to_delete = cursor.fetchone()
     
@@ -173,15 +305,17 @@ def delete_user(current_user, user_id):
 
     try:
         cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        cursor.close()  # ✅ ปิด Cursor ก่อน Commit
         conn.commit()
         conn.close()
+        print("✅ User deleted successfully")
         return jsonify({"message": "User deleted successfully"}), 200
     except Exception as e:
         conn.close()
+        print(f"❌ Failed to delete user: {str(e)}")
         return jsonify({"error": f"Failed to delete user: {str(e)}"}), 500
 
-
-
+    
 # ---------------------------- RPA Part
 @app.route('/run_rpa', methods=['POST'])
 def run_rpa():
@@ -330,5 +464,11 @@ def classify_image():
 
     return jsonify({"prediction": prediction})
 
+# 🔥 รันอัปเดตรหัสผ่านก่อนเริ่มเซิร์ฟเวอร์
+# hash_passwords()
+
 if __name__ == '__main__':
+    CORS(app)
+    init_db() 
+    hash_passwords()
     app.run(debug=True, port=5000)  # ✅ ต้องมีเพื่อรัน Flask

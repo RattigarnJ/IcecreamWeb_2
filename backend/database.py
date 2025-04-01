@@ -1,40 +1,36 @@
 import sqlite3
+import bcrypt
 
 DATABASE = "users.db"
 
-def init_db():
+def get_db_connection():
+    """ สร้างการเชื่อมต่อฐานข้อมูล """
     conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    """ สร้างตารางผู้ใช้ในฐานข้อมูล ถ้าไม่มี """
+    conn = get_db_connection()
     cursor = conn.cursor()
-    
-    # สร้างตาราง users ถ้ายังไม่มี
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
+            plain_password TEXT,  -- ✅ เพิ่มคอลัมน์นี้
             role TEXT NOT NULL
         )
-    ''')
-    
-    # เพิ่มข้อมูลตัวอย่างถ้ายังไม่มี
-    cursor.execute("SELECT COUNT(*) FROM users")
-    if cursor.fetchone()[0] == 0:
-        cursor.executemany("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", [
-            ("Dev", "010", "Dev"),
-            ("Admin", "0", "Admin"),
-            ("U1", "1", "User")
-        ])
-        conn.commit()
-    
+    """)
+    conn.commit()
     conn.close()
+
 
 def get_user(username):
     """ ดึงข้อมูลผู้ใช้จากฐานข้อมูล """
-    conn = sqlite3.connect(DATABASE)
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT username, password, role FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = cursor.fetchone()
     conn.close()
-    if user:
-        return {"username": user[0], "password": user[1], "role": user[2]}
-    return None
+    return user

@@ -29,7 +29,7 @@ const Login = ({ setIsAuthenticated }) => {
             localStorage.setItem("token", data.token);
             localStorage.setItem("role", data.role);  // ✅ บันทึก role
             setIsAuthenticated(true);  // ✅ อัปเดต isAuthenticated
-            navigate(data.role === "Dev" ? "/homeAdmin" : "/home", { replace: true });
+            navigate(data.role === "Dev" || data.role === "Admin" ? "/homeAdmin" : "/home", { replace: true });
 
         } catch (err) {
             setError(err.message);
@@ -41,7 +41,7 @@ const Login = ({ setIsAuthenticated }) => {
             <div className="welcome-section">
                 <h1>WELCOME TO</h1>
                 <h1 style={{ marginTop: '410px' }}>ICE CREAM</h1>
-                <h1>CABINET</h1>
+                <h1>FREEZER</h1>
             </div>
             <div className="login-section">
                 <h2>LOGIN</h2>
@@ -51,12 +51,12 @@ const Login = ({ setIsAuthenticated }) => {
                     <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
                     <label htmlFor="password">Password</label>
                     <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} required />
-                    <img src={showPassword ? logoshow : logohide} 
-                        style={{ width: '15px', marginTop: '-28px', marginLeft: '360px', cursor: 'pointer' }}
+                    <img src={showPassword ? logoshow : logohide}
+                        style={{ width: '15px', marginTop: '-30px', marginLeft: '360px', cursor: 'pointer' }}
                         alt={showPassword ? 'Hide password' : 'Show password'}
                         onClick={() => setShowPassword(!showPassword)}
                     />
-                    <button type="submit" style={{ fontWeight: 'lighter' }}>
+                    <button type="submit" style={{ fontWeight: 'lighter'}}>
                         Login
                     </button>
                 </form>

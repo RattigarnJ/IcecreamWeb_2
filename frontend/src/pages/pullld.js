@@ -5,24 +5,19 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import logo from "../components/back.png";
 
-const Show = () => {
+const PullLD = () => {
 
     const navigate = useNavigate();
 
     const [selectedDateStart, setSelectedDateStart] = useState("");
     const [selectedDateStop, setSelectedDateStop] = useState("");
     const [periodday, setPeriodday] = useState(0);
-    const [message, setMessage] = useState("");
     const [mode, setMode] = useState("");
-
-    const handleLogin = () => {
-        navigate("/login");
-    };
 
     const splitDate = (dateString1, dateString2) => {
         const [year1, month1, day1] = dateString1.split("-");
         const [year2, month2, day2] = dateString2.split("-")
-        return { year1, month1, day1, day2 };
+        return { year1, month1, day1, day2, year2, month2 };
     };
 
     function getColumnAndRow(selectedDate) {
@@ -59,32 +54,55 @@ const Show = () => {
         }
     }, [selectedDateStart, selectedDateStop]);
 
+    // eslint-disable-next-line no-unused-vars
     const { day, column, row } = useMemo(() => getColumnAndRow(selectedDateStart), [selectedDateStart]);
 
     const runRPA = async () => {
         try {
-            const response = await axios.post("http://localhost:5000/run_rpa", {
-                row: row,
-                column: column,
-                month1: month1,
-                year1: year1,
-                periodday: periodday,
-                moderun: mode,
-            });
+            console.log("Calling /run_rpa with data:", { row, column, month1, year1, periodday, mode });
+            const runResponse = await axios.post(
+                "http://localhost:5000/run_rpa",
+                {
+                    row: row,
+                    column: column,
+                    month1: month1,
+                    year1: year1,
+                    periodday: periodday,
+                    moderun: mode,
+                }
+            );
 
-            setMessage(response.data.message);
+            console.log("Run RPA response:", runResponse.data);
 
-            navigate("/pullsuccess");
+            // ตรวจสอบ response จาก /run_rpa
+            if (runResponse.data.message === "✅ RPA started successfully") {
+                // หน่วงเวลาเล็กน้อยเพื่อให้ rpa_running อัปเดต
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                console.log("Calling /rpa_status");
+                const statusResponse = await axios.get("http://localhost:5000/rpa_status");
+                console.log("RPA Status response:", statusResponse.data);
+
+                const { running } = statusResponse.data;
+                console.log("Navigating to:", running ? "/pullwaiting" : "/pullsuccess");
+                navigate(running ? "/pullwaiting" : "/pullsuccess");
+            } else {
+                // setMessage(runResponse.data.error || "RPA ไม่สามารถเริ่มได้ รอการดำเนินการ");
+                console.log("Navigating to /pullwaiting");
+                navigate("/pullwaiting");
+            }
         } catch (error) {
-            console.error("Error:", error);
-            setMessage("Failed to start RPA");
+            console.error("Error:", error.response?.data, error.response?.status);
+            // setMessage(error.response?.data?.error || "RPA ไม่สามารถเริ่มได้ รอการดำเนินการ");
+            console.log("Navigating to /pullwaiting");
+            navigate("/pullwaiting");
         }
     };
 
     return (
         <div className="Containner-pull">
-            <p className='Text-PS-H-ST' style={{ alignSelf: 'center' }}>LYING DOWN CONTRACT</p>
-            <p className='Text-PS-H-ST' style={{ marginTop: '-35px', alignSelf: 'center' }}>PULL IMAGES</p>
+            <p className='Text-PS-H-ST' style={{ alignSelf: 'center' }}>HORIZONTAL FREEZER CONTRACT</p>
+            <p className='Text-PS-H-ST' style={{ marginTop: '-35px', alignSelf: 'center' }}>IMPORT IMAGES</p>
             <p style={{ marginLeft: '-480px' }}>Day - Start</p>
             <input
                 type="date"
@@ -109,7 +127,7 @@ const Show = () => {
                 className='Button-Pull'
                 onClick={runRPA}
             >
-                PULL
+                IMPORT
             </button>
             <div className='Div-back' style={{ position: 'fixed' }}>
                 <Link to="/pull" className="logo">
@@ -121,4 +139,4 @@ const Show = () => {
     );
 };
 
-export default Show;
+export default PullLD;

@@ -13,35 +13,40 @@ const Navbar = ({ setIsAuthenticated }) => {
     navigate("/", { replace: true });
   };
 
+  const homePath = role === "Dev" || role === "Admin" ? "/homeAdmin" : "/home";
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <p style={{ fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }} onClick={() => navigate("/home")}>
-          ICE CREAM CABINET
-        </p>
+      <Link to={homePath}>
+          <p style={{ fontWeight: "bold", fontSize: "16px", cursor: 'pointer', color: '#252525' }}>
+            ICE CREAM FREEZER
+          </p>
+      </Link>
       </div>
       <div className="navbar-right">
         <ul className="nav-links">
-          {role == "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
+          {role === "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
             <li>
               <Link to="/member">MEMBER</Link>
             </li>
           )}
           {role !== "User" && ( // ✅ ซ่อน "PULL" สำหรับ User
             <li>
-              <Link to="/pull">PULL</Link>
+              <Link to="/pull">IMPORT IMAGES</Link>
             </li>
           )}
           <li>
-            <Link to="/show">SHOW</Link>
+            <Link to="/show">SHOW REPORT</Link>
           </li>
-          {role == "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
+          {role === "Dev" && ( // ✅ ซ่อน "PULL" สำหรับ User
           <li>
-            <Link to="/register">Sign In</Link>
+            <Link to="/register">SIGN UP</Link>
           </li>
           )}
-          <li>
-            <button onClick={handleLogout} style={{ background: "none", border: "none", cursor: "pointer", color: "red" }}>
+          {/* <li style={{backgroundColor: 'white', borderRadius: '50px', padding: '7px 6px', marginLeft: '8px', display: 'inline-block'}}> */}
+            <li>
+            <button onClick={handleLogout} style={{ background: "none", border: "none", cursor: "pointer", color: "red", fontSize: '16px', fontWeight: 'bold' }}>
               LOGOUT
             </button>
           </li>

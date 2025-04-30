@@ -23,19 +23,26 @@ const Member = () => {
     };
 
     const handleEdit = (user) => {
-        setEditingUser(user);
+        // ใช้ plain_password จาก backend ถ้ามี
+        setEditingUser({
+            ...user,
+            plain_password: user.plain_password || "" // แสดง plain password เดิม ถ้าไม่มีให้เป็นว่าง
+        });
     };
 
     const handleSave = async () => {
         try {
+
             const userToUpdate = {
-                ...editingUser,
-                password: editingUser.password,  // ✅ รหัสผ่านที่ผู้ใช้กรอก
+                id: editingUser.id,
+                username: editingUser.username,
+                password: editingUser.plain_password, // ส่ง plain password
+                role: editingUser.role
             };
 
             await fetch(`http://localhost:5000/update-user`, {
                 method: "POST",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`  // ✅ ส่ง Token ไปกับ Request
                 },
@@ -61,7 +68,7 @@ const Member = () => {
             try {
                 const response = await fetch(`http://localhost:5000/delete-user/${userId}`, {
                     method: "DELETE",
-                    headers: { 
+                    headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`  // ✅ ส่ง Token ไปกับ Request
                     }
@@ -80,68 +87,77 @@ const Member = () => {
     };
 
     return (
-        <div className="Container-home">
-            <p className='Text-Welcome'>Members</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Bcrypt Password</th>
-                        <th>Password</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.id}>
-                            <td>
-                                {editingUser?.id === user.id ? (
-                                    <input type="text" value={editingUser.username} 
-                                        onChange={(e) => setEditingUser({...editingUser, username: e.target.value})} 
-                                    />
-                                ) : user.username}
-                            </td>
-                            <td>{user.password}</td>  {/* ✅ ไม่ต้องใช้ input ที่ช่อง bcrypt password */}
-                            <td>
-                                {editingUser?.id === user.id ? (
-                                    <input 
-                                        type="text" 
-                                        value={editingUser.password} 
-                                        onChange={(e) => setEditingUser({
-                                            ...editingUser, 
-                                            password: e.target.value
-                                        })}
-                                    />
-                                ) : (
-                                    <span>********</span>  // ✅ แสดงรหัสผ่านเป็น ***
-                                )}
-                            </td>
-                            <td>
-                                {editingUser?.id === user.id ? (
-                                    <select value={editingUser.role} 
-                                        onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
-                                    >
-                                        <option value="Dev">Dev</option>
-                                        <option value="Admin">Admin</option>
-                                        <option value="User">User</option>
-                                    </select>
-                                ) : user.role}
-                            </td>
-                            <td>
-                                {editingUser?.id === user.id ? (
-                                    <button onClick={handleSave}>Save</button>
-                                ) : (
-                                    <>
-                                        <button onClick={() => handleEdit(user)}>Edit</button>
-                                        <button onClick={() => handleDelete(user.id)}>Delete</button>
-                                    </>
-                                )}
-                            </td>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', backgroundColor: '#f4f4f4' }}>
+            <div style={{ width: '90%' }}>
+                <p className='Text-Welcome' style={{ textAlign: 'center', marginTop: '-40px' }}>MEMBERS</p>
+                <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    backgroundColor: 'white',
+                    borderRadius: '10px',
+                    overflow: 'hidden'
+                }}>
+                    <thead>
+                        <tr>
+                            <th style={{ padding: '20px' }}>Username</th>
+                            <th>Bcrypt Password</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody style={{ textAlign: 'center' }}>
+                        {users.map(user => (
+                            <tr key={user.id}>
+                                <td>
+                                    {editingUser?.id === user.id ? (
+                                        <input type="text" value={editingUser.username}
+                                            onChange={(e) => setEditingUser({ ...editingUser, username: e.target.value })}
+                                        />
+                                    ) : user.username}
+                                </td>
+                                <td>{user.password}</td> {/* แสดง hashed password */}
+                                <td>
+                                    {editingUser?.id === user.id ? (
+                                        <input
+                                            type="text"
+                                            value={editingUser.plain_password}
+                                            onChange={(e) => setEditingUser({
+                                                ...editingUser,
+                                                plain_password: e.target.value
+                                            })}
+                                            placeholder="Enter new password"
+                                        />
+                                    ) : (
+                                        <span>********</span> // แสดง plain password ถ้ามี
+                                    )}
+                                </td>
+                                <td>
+                                    {editingUser?.id === user.id ? (
+                                        <select value={editingUser.role}
+                                            onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                                        >
+                                            <option value="Dev">Dev</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="User">User</option>
+                                        </select>
+                                    ) : user.role}
+                                </td>
+                                <td>
+                                    {editingUser?.id === user.id ? (
+                                        <button onClick={handleSave}>Save</button>
+                                    ) : (
+                                        <>
+                                            <button onClick={() => handleEdit(user)}>Edit</button>
+                                            <button onClick={() => handleDelete(user.id)}>Delete</button>
+                                        </>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

@@ -2,19 +2,20 @@ import './App.css';
 import Navbar from './components/Navbar';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Pull from './pages/pull';
-import Home from './pages/home';
-import HomeAdmin from './pages/homeAdmin';
-import Show from './pages/show';
-import Login from './pages/login';
-import Signin from './pages/register';
-import ShowST from './pages/showst';
-import ShowLD from './pages/showld';
-import PullST from './pages/pullst';
-import PullLD from './pages/pullld';
-import ShowDis from './pages/showdis';
-import PullSuc from './pages/pullsuccess';
-import Member from './pages/member';
+import Pull from './pages/pull'
+import Home from './pages/home'
+import Show from './pages/show'
+import Login from './pages/login'
+import ShowST from './pages/showst'
+import ShowLD from './pages/showld'
+import PullST from './pages/pullst'
+import PullLD from './pages/pullld'
+import ShowReport from './pages/showreport'
+import PullSuc from './pages/pullsuccess'
+import HomeAdmin from './pages/homeadmin'
+import Signin from './pages/register'
+import Member from './pages/member'
+import Pullwait from './pages/pullwaiting'
 
 function PrivateRoute({ children, allowedRoles }) {
   const token = localStorage.getItem("token");
@@ -27,6 +28,7 @@ function PrivateRoute({ children, allowedRoles }) {
 }
 
 function App() {
+
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
 
   useEffect(() => {
@@ -47,13 +49,23 @@ function App() {
   }
 
   return (
-    <div className="Container">
+    <div className="Containner">
       <Router>
         <LayoutWithNavbar>
           <Routes>
+            {/* หน้า Login เป็นหน้าเริ่มต้น */}
             <Route 
               path="/" 
-              element={isAuthenticated ? <Navigate to={localStorage.getItem("role") === "Dev" || localStorage.getItem("role") === "Admin" ? "/homeAdmin" : "/home"} replace /> : <Login setIsAuthenticated={setIsAuthenticated} />} 
+              element={<Login setIsAuthenticated={setIsAuthenticated} />} 
+            />
+            {/* Redirect ไปหน้าหลักหลัง login */}
+            <Route 
+              path="/dashboard" 
+              element={
+                isAuthenticated 
+                  ? <Navigate to={localStorage.getItem("role") === "Dev" || localStorage.getItem("role") === "Admin" ? "/homeAdmin" : "/home"} replace /> 
+                  : <Navigate to="/" replace />
+              } 
             />
             <Route path="/register" element={<PrivateRoute allowedRoles={["Dev"]}><Signin /></PrivateRoute>} />
             <Route path="/member" element={<PrivateRoute allowedRoles={["Dev"]}><Member /></PrivateRoute>} />
@@ -65,8 +77,9 @@ function App() {
             <Route path="/showld" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><ShowLD /></PrivateRoute>} />
             <Route path="/pullst" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><PullST /></PrivateRoute>} />
             <Route path="/pullld" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><PullLD /></PrivateRoute>} />
-            <Route path="/showdis" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><ShowDis /></PrivateRoute>} />
+            <Route path="/showreport" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><ShowReport /></PrivateRoute>} />
             <Route path="/pullsuccess" element={<PrivateRoute allowedRoles={["Dev", "Admin", "User"]}><PullSuc /></PrivateRoute>} />
+            <Route path="/pullwaiting" element={<PrivateRoute allowedRoles={["Dev", "Admin"]}><Pullwait /></PrivateRoute>}/>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </LayoutWithNavbar>

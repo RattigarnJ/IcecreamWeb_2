@@ -1,15 +1,12 @@
 import '../App.css';
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logohide from "../components/hide.png";
-import logoshow from "../components/show.png";
 
 const Register = () => {
     const navigate = useNavigate();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("User"); // Default role เป็น User
-    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
     const registerClick = async (e) => {
@@ -39,10 +36,10 @@ const Register = () => {
             <div className="welcome-section">
                 <h1>WELCOME TO</h1>
                 <h1 style={{ marginTop: '410px' }}>ICE CREAM</h1>
-                <h1>CABINET</h1>
+                <h1>FREEZER</h1>
             </div>
             <div className="login-section">
-                <h2>Sign Up</h2>
+                <h2>SIGN UP</h2>
                 {error && <p className="error-text" style={{ color: 'red' }}>{error}</p>}
                 <form className="login-form" onSubmit={registerClick}>
                     <label htmlFor="username">Username</label>
@@ -55,20 +52,13 @@ const Register = () => {
                     
                     <label htmlFor="password">Password</label>
                     <input 
-                        type={showPassword ? 'text' : 'password'} 
+                        type="text" 
                         value={password} 
                         onChange={(e) => setPassword(e.target.value)} 
                         required 
-                    />
-                    <img 
-                        src={showPassword ? logoshow : logohide} 
-                        style={{ width: '15px', marginTop: '-28px', marginLeft: '360px', cursor: 'pointer' }}
-                        alt={showPassword ? 'Hide password' : 'Show password'}
-                        onClick={() => setShowPassword(!showPassword)}
-                    />
-
-                    <label htmlFor="role">Role</label>
-                    <select value={role} onChange={(e) => setRole(e.target.value)}>
+                    />  
+                    <label htmlFor="role" style={{marginTop: '30px'}}>Role</label>
+                    <select value={role} onChange={(e) => setRole(e.target.value)} style={{height: '30px'}}>
                         <option value="User">User</option>
                         <option value="Admin">Admin</option>
                         <option value="Dev">Dev</option>

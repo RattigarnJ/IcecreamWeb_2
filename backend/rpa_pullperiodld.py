@@ -96,7 +96,7 @@ try:
     time.sleep(2)
 
     year_put = int(sys.argv[4])
-    # year_put = 2024
+    # year_put = 2025
 
     if year_put == 2023:
         year_select = driver.find_element(By.XPATH, '/html/body/div[1]/div[2]/div/mat-datepicker-content/div[2]/mat-calendar/div/mat-multi-year-view/table/tbody/tr[6]/td[2]/button/div[1]')
@@ -112,7 +112,7 @@ try:
         time.sleep(2)
 
     month_put = int(sys.argv[3])
-    # month_put = 5
+    # month_put = 2
 
     month_table = {1: [2,1], 2: [2,2], 3: [2,3], 4: [2,4], 5: [3,1], 6: [3,2], 7: [3,3], 8: [3,4], 9: [4,1], 10: [4,2], 11: [4,3], 12: [4,4]}
     month_select = driver.find_element(By.XPATH, f'/html/body/div/div[2]/div/mat-datepicker-content/div[2]/mat-calendar/div/mat-year-view/table/tbody/tr[{month_table[month_put][0]}]/td[{month_table[month_put][1]}]/button')
@@ -129,7 +129,7 @@ try:
     # Select Company part
     cpn_select = driver.find_element(By.XPATH, '/html/body/app-root/app-plan-search/div/div/div[2]/app-search-pm-box/div/form/div[3]/div[2]/app-multi-search-box/div/input')
     cpn_select.click()
-    time.sleep(2)
+    time.sleep(5)
 
     cpn_select = driver.find_element(By.XPATH, '/html/body/div/div[2]/div/mat-dialog-container/div/div/app-dialog-multiselect/div/div[2]/angular2-multiselect/div/div[1]/div')
     cpn_select.click()
@@ -173,11 +173,11 @@ try:
     td = int(sys.argv[2])
 
     # start day 
-    # tr = 3
-    # td = 1
+    # tr = 1
+    # td = 7
 
     period_day = (int(sys.argv[5])) + 1
-    # period_day = 2
+    # period_day = 1
 
     # Var downloaded_urls
     downloaded_urls = set() 
@@ -288,37 +288,61 @@ try:
                                             output_dir = f"{download_folder_image}/{date}/{number_store_text}"
                                             
                                             # Find element of Path div
-                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                             # Download Picture for keep in folder
                                             # For Using Water Tank
-                                            for div in div_elements_cooler:
+                                            # for div in div_elements_cooler:
 
+                                            #     div_text = div.text
+                                            #     # Use text before "ตู้ทรงยืน"
+                                            #     number = div_text.split(' ')[0] 
+
+                                            #     # Searching Text "รูปหลังทำ"
+                                            #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                
+                                            #     if after_use_div:
+                                            #         # Seraching images part "รูปหลังทำ"
+                                            #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                            #         for idx, img in enumerate(image_elements):
+                                            #             image_url = img.get_attribute("src")
+                                            #             if image_url:
+                                            #                 # File name
+                                            #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                            
+                                            #                 response = requests.get(image_url, stream=True)
+                                            #                 if response.status_code == 200:
+                                            #                     # Downloading image
+                                            #                     with open(filename, 'wb') as file:
+                                            #                         for chunk in response.iter_content(1024):
+                                            #                             file.write(chunk)
+                                            #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                            #                 else:
+                                            #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                            for div in div_elements_cooler:
                                                 div_text = div.text
                                                 # Use text before "ตู้ทรงยืน"
                                                 number = div_text.split(' ')[0] 
 
-                                                # Searching Text "รูปหลังทำ"
-                                                after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
                                                 
-                                                if after_use_div:
-                                                    # Seraching images part "รูปหลังทำ"
-                                                    image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
-                                                    for idx, img in enumerate(image_elements):
-                                                        image_url = img.get_attribute("src")
-                                                        if image_url:
-                                                            # File name
-                                                            filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
-                                                            
-                                                            response = requests.get(image_url, stream=True)
-                                                            if response.status_code == 200:
-                                                                # Downloading image
-                                                                with open(filename, 'wb') as file:
-                                                                    for chunk in response.iter_content(1024):
-                                                                        file.write(chunk)
-                                                                print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
-                                                            else:
-                                                                print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+                                                for idx, img in enumerate(image_elements):
+                                                    image_url = img.get_attribute("src")
+                                                    if image_url:
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                                        response = requests.get(image_url, stream=True)
+                                                        if response.status_code == 200:
+                                                            # Downloading image
+                                                            with open(filename, 'wb') as file:
+                                                                for chunk in response.iter_content(1024):
+                                                                    file.write(chunk)
+                                                            print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                                        else:
+                                                            print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
 
                                             driver.back()
                                             time.sleep(5)
@@ -343,37 +367,61 @@ try:
                                             output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                             # Find element of Path div
-                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                             # Download Picture for keep in folder
                                             # For Using Water Tank
-                                            for div in div_elements_cooler:
+                                            # for div in div_elements_cooler:
 
+                                            #     div_text = div.text
+                                            #     # Use text before "ตู้ทรงยืน"
+                                            #     number = div_text.split(' ')[0] 
+
+                                            #     # Searching Text "รูปหลังทำ"
+                                            #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                
+                                            #     if after_use_div:
+                                            #         # Seraching images part "รูปหลังทำ"
+                                            #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                            #         for idx, img in enumerate(image_elements):
+                                            #             image_url = img.get_attribute("src")
+                                            #             if image_url:
+                                            #                 # File name
+                                            #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                            
+                                            #                 response = requests.get(image_url, stream=True)
+                                            #                 if response.status_code == 200:
+                                            #                     # Downloading image
+                                            #                     with open(filename, 'wb') as file:
+                                            #                         for chunk in response.iter_content(1024):
+                                            #                             file.write(chunk)
+                                            #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                            #                 else:
+                                            #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                            for div in div_elements_cooler:
                                                 div_text = div.text
                                                 # Use text before "ตู้ทรงยืน"
                                                 number = div_text.split(' ')[0] 
 
-                                                # Searching Text "รูปหลังทำ"
-                                                after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
                                                 
-                                                if after_use_div:
-                                                    # Seraching images part "รูปหลังทำ"
-                                                    image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
-                                                    for idx, img in enumerate(image_elements):
-                                                        image_url = img.get_attribute("src")
-                                                        if image_url:
-                                                            # File name
-                                                            filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
-                                                            
-                                                            response = requests.get(image_url, stream=True)
-                                                            if response.status_code == 200:
-                                                                # Downloading image
-                                                                with open(filename, 'wb') as file:
-                                                                    for chunk in response.iter_content(1024):
-                                                                        file.write(chunk)
-                                                                print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
-                                                            else:
-                                                                print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+                                                for idx, img in enumerate(image_elements):
+                                                    image_url = img.get_attribute("src")
+                                                    if image_url:
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                                        response = requests.get(image_url, stream=True)
+                                                        if response.status_code == 200:
+                                                            # Downloading image
+                                                            with open(filename, 'wb') as file:
+                                                                for chunk in response.iter_content(1024):
+                                                                    file.write(chunk)
+                                                            print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                                        else:
+                                                            print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
 
                                             driver.back()
                                             time.sleep(3)
@@ -400,27 +448,51 @@ try:
                                         output_dir = f"{download_folder_image}/{date}/{number_store_text}"
                                         
                                         # Find element of Path div
-                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                         # Download Picture for keep in folder
                                         # For Using Water Tank
-                                        for div in div_elements_cooler:
+                                        # for div in div_elements_cooler:
 
-                                            div_text = div.text
-                                            # Use text before "ตู้ทรงยืน"
-                                            number = div_text.split(' ')[0] 
+                                        #     div_text = div.text
+                                        #     # Use text before "ตู้ทรงยืน"
+                                        #     number = div_text.split(' ')[0] 
 
-                                            # Searching Text "รูปหลังทำ"
-                                            after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                        #     # Searching Text "รูปหลังทำ"
+                                        #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
                                             
-                                            if after_use_div:
-                                                # Seraching images part "รูปหลังทำ"
-                                                image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #     if after_use_div:
+                                        #         # Seraching images part "รูปหลังทำ"
+                                        #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #         for idx, img in enumerate(image_elements):
+                                        #             image_url = img.get_attribute("src")
+                                        #             if image_url:
+                                        #                 # File name
+                                        #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                        #                 response = requests.get(image_url, stream=True)
+                                        #                 if response.status_code == 200:
+                                        #                     # Downloading image
+                                        #                     with open(filename, 'wb') as file:
+                                        #                         for chunk in response.iter_content(1024):
+                                        #                             file.write(chunk)
+                                        #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                        #                 else:
+                                        #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                        for div in div_elements_cooler:
+                                                div_text = div.text
+                                                # Use text before "ตู้ทรงยืน"
+                                                number = div_text.split(' ')[0] 
+
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
+                                                
                                                 for idx, img in enumerate(image_elements):
                                                     image_url = img.get_attribute("src")
                                                     if image_url:
-                                                        # File name
-                                                        filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
                                                         
                                                         response = requests.get(image_url, stream=True)
                                                         if response.status_code == 200:
@@ -452,27 +524,51 @@ try:
                                         output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                         # Find element of Path div
-                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                         # Download Picture for keep in folder
                                         # For Using Water Tank
-                                        for div in div_elements_cooler:
+                                        # for div in div_elements_cooler:
 
-                                            div_text = div.text
-                                            # Use text before "ตู้ทรงยืน"
-                                            number = div_text.split(' ')[0] 
+                                        #     div_text = div.text
+                                        #     # Use text before "ตู้ทรงยืน"
+                                        #     number = div_text.split(' ')[0] 
 
-                                            # Searching Text "รูปหลังทำ"
-                                            after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                        #     # Searching Text "รูปหลังทำ"
+                                        #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
                                             
-                                            if after_use_div:
-                                                # Seraching images part "รูปหลังทำ"
-                                                image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #     if after_use_div:
+                                        #         # Seraching images part "รูปหลังทำ"
+                                        #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #         for idx, img in enumerate(image_elements):
+                                        #             image_url = img.get_attribute("src")
+                                        #             if image_url:
+                                        #                 # File name
+                                        #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                        #                 response = requests.get(image_url, stream=True)
+                                        #                 if response.status_code == 200:
+                                        #                     # Downloading image
+                                        #                     with open(filename, 'wb') as file:
+                                        #                         for chunk in response.iter_content(1024):
+                                        #                             file.write(chunk)
+                                        #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                        #                 else:
+                                        #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                        for div in div_elements_cooler:
+                                                div_text = div.text
+                                                # Use text before "ตู้ทรงยืน"
+                                                number = div_text.split(' ')[0] 
+
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
+                                                
                                                 for idx, img in enumerate(image_elements):
                                                     image_url = img.get_attribute("src")
                                                     if image_url:
-                                                        # File name
-                                                        filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
                                                         
                                                         response = requests.get(image_url, stream=True)
                                                         if response.status_code == 200:
@@ -506,27 +602,51 @@ try:
                                         output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                         # Find element of Path div
-                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                         # Download Picture for keep in folder
                                         # For Using Water Tank
-                                        for div in div_elements_cooler:
+                                        # for div in div_elements_cooler:
 
-                                            div_text = div.text
-                                            # Use text before "ตู้ทรงยืน"
-                                            number = div_text.split(' ')[0] 
+                                        #     div_text = div.text
+                                        #     # Use text before "ตู้ทรงยืน"
+                                        #     number = div_text.split(' ')[0] 
 
-                                            # Searching Text "รูปหลังทำ"
-                                            after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                        #     # Searching Text "รูปหลังทำ"
+                                        #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
                                             
-                                            if after_use_div:
-                                                # Seraching images part "รูปหลังทำ"
-                                                image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #     if after_use_div:
+                                        #         # Seraching images part "รูปหลังทำ"
+                                        #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #         for idx, img in enumerate(image_elements):
+                                        #             image_url = img.get_attribute("src")
+                                        #             if image_url:
+                                        #                 # File name
+                                        #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                        #                 response = requests.get(image_url, stream=True)
+                                        #                 if response.status_code == 200:
+                                        #                     # Downloading image
+                                        #                     with open(filename, 'wb') as file:
+                                        #                         for chunk in response.iter_content(1024):
+                                        #                             file.write(chunk)
+                                        #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                        #                 else:
+                                        #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                        for div in div_elements_cooler:
+                                                div_text = div.text
+                                                # Use text before "ตู้ทรงยืน"
+                                                number = div_text.split(' ')[0] 
+
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
+                                                
                                                 for idx, img in enumerate(image_elements):
                                                     image_url = img.get_attribute("src")
                                                     if image_url:
-                                                        # File name
-                                                        filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
                                                         
                                                         response = requests.get(image_url, stream=True)
                                                         if response.status_code == 200:
@@ -589,37 +709,62 @@ try:
                                             output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                             # Find element of Path div
-                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                             # Download Picture for keep in folder
                                             # For Using Water Tank
-                                            for div in div_elements_cooler:
+                                            # for div in div_elements_cooler:
 
+                                            #     div_text = div.text
+                                            #     # Use text before "ตู้ทรงยืน"
+                                            #     number = div_text.split(' ')[0] 
+
+                                            #     # Searching Text "รูปหลังทำ"
+                                            #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                
+                                            #     if after_use_div:
+                                            #         # Seraching images part "รูปหลังทำ"
+                                            #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                            #         for idx, img in enumerate(image_elements):
+                                            #             image_url = img.get_attribute("src")
+                                            #             if image_url:
+                                            #                 # File name
+                                            #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                            
+                                            #                 response = requests.get(image_url, stream=True)
+                                            #                 if response.status_code == 200:
+                                            #                     # Downloading image
+                                            #                     with open(filename, 'wb') as file:
+                                            #                         for chunk in response.iter_content(1024):
+                                            #                             file.write(chunk)
+                                            #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                            #                 else:
+                                            #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                            for div in div_elements_cooler:
                                                 div_text = div.text
                                                 # Use text before "ตู้ทรงยืน"
                                                 number = div_text.split(' ')[0] 
 
-                                                # Searching Text "รูปหลังทำ"
-                                                after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
                                                 
-                                                if after_use_div:
-                                                    # Seraching images part "รูปหลังทำ"
-                                                    image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
-                                                    for idx, img in enumerate(image_elements):
-                                                        image_url = img.get_attribute("src")
-                                                        if image_url:
-                                                            # File name
-                                                            filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
-                                                            
-                                                            response = requests.get(image_url, stream=True)
-                                                            if response.status_code == 200:
-                                                                # Downloading image
-                                                                with open(filename, 'wb') as file:
-                                                                    for chunk in response.iter_content(1024):
-                                                                        file.write(chunk)
-                                                                print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
-                                                            else:
-                                                                print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+                                                for idx, img in enumerate(image_elements):
+                                                    image_url = img.get_attribute("src")
+                                                    if image_url:
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                                        response = requests.get(image_url, stream=True)
+                                                        if response.status_code == 200:
+                                                            # Downloading image
+                                                            with open(filename, 'wb') as file:
+                                                                for chunk in response.iter_content(1024):
+                                                                    file.write(chunk)
+                                                            print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                                        else:
+                                                            print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
 
                                             driver.back()
                                             time.sleep(3)
@@ -646,37 +791,62 @@ try:
                                             output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                             # Find element of Path div
-                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                            div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                             # Download Picture for keep in folder
                                             # For Using Water Tank
-                                            for div in div_elements_cooler:
+                                            # for div in div_elements_cooler:
 
+                                            #     div_text = div.text
+                                            #     # Use text before "ตู้ทรงยืน"
+                                            #     number = div_text.split(' ')[0] 
+
+                                            #     # Searching Text "รูปหลังทำ"
+                                            #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                
+                                            #     if after_use_div:
+                                            #         # Seraching images part "รูปหลังทำ"
+                                            #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                            #         for idx, img in enumerate(image_elements):
+                                            #             image_url = img.get_attribute("src")
+                                            #             if image_url:
+                                            #                 # File name
+                                            #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                            
+                                            #                 response = requests.get(image_url, stream=True)
+                                            #                 if response.status_code == 200:
+                                            #                     # Downloading image
+                                            #                     with open(filename, 'wb') as file:
+                                            #                         for chunk in response.iter_content(1024):
+                                            #                             file.write(chunk)
+                                            #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                            #                 else:
+                                            #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                            for div in div_elements_cooler:
                                                 div_text = div.text
                                                 # Use text before "ตู้ทรงยืน"
                                                 number = div_text.split(' ')[0] 
 
-                                                # Searching Text "รูปหลังทำ"
-                                                after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
                                                 
-                                                if after_use_div:
-                                                    # Seraching images part "รูปหลังทำ"
-                                                    image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
-                                                    for idx, img in enumerate(image_elements):
-                                                        image_url = img.get_attribute("src")
-                                                        if image_url:
-                                                            # File name
-                                                            filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
-                                                            
-                                                            response = requests.get(image_url, stream=True)
-                                                            if response.status_code == 200:
-                                                                # Downloading image
-                                                                with open(filename, 'wb') as file:
-                                                                    for chunk in response.iter_content(1024):
-                                                                        file.write(chunk)
-                                                                print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
-                                                            else:
-                                                                print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+                                                for idx, img in enumerate(image_elements):
+                                                    image_url = img.get_attribute("src")
+                                                    if image_url:
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                                        response = requests.get(image_url, stream=True)
+                                                        if response.status_code == 200:
+                                                            # Downloading image
+                                                            with open(filename, 'wb') as file:
+                                                                for chunk in response.iter_content(1024):
+                                                                    file.write(chunk)
+                                                            print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                                        else:
+                                                            print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
 
                                             driver.back()
                                             time.sleep(3)
@@ -707,27 +877,51 @@ try:
                                         output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                         # Find element of Path div
-                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                         # Download Picture for keep in folder
                                         # For Using Water Tank
-                                        for div in div_elements_cooler:
+                                        # for div in div_elements_cooler:
 
-                                            div_text = div.text
-                                            # Use text before "ตู้ทรงยืน"
-                                            number = div_text.split(' ')[0] 
+                                        #     div_text = div.text
+                                        #     # Use text before "ตู้ทรงยืน"
+                                        #     number = div_text.split(' ')[0] 
 
-                                            # Searching Text "รูปหลังทำ"
-                                            after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                        #     # Searching Text "รูปหลังทำ"
+                                        #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
                                             
-                                            if after_use_div:
-                                                # Seraching images part "รูปหลังทำ"
-                                                image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #     if after_use_div:
+                                        #         # Seraching images part "รูปหลังทำ"
+                                        #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #         for idx, img in enumerate(image_elements):
+                                        #             image_url = img.get_attribute("src")
+                                        #             if image_url:
+                                        #                 # File name
+                                        #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                        #                 response = requests.get(image_url, stream=True)
+                                        #                 if response.status_code == 200:
+                                        #                     # Downloading image
+                                        #                     with open(filename, 'wb') as file:
+                                        #                         for chunk in response.iter_content(1024):
+                                        #                             file.write(chunk)
+                                        #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                        #                 else:
+                                        #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                        for div in div_elements_cooler:
+                                                div_text = div.text
+                                                # Use text before "ตู้ทรงยืน"
+                                                number = div_text.split(' ')[0] 
+
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
+                                                
                                                 for idx, img in enumerate(image_elements):
                                                     image_url = img.get_attribute("src")
                                                     if image_url:
-                                                        # File name
-                                                        filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
                                                         
                                                         response = requests.get(image_url, stream=True)
                                                         if response.status_code == 200:
@@ -738,6 +932,7 @@ try:
                                                             print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
                                                         else:
                                                             print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
 
                                         driver.back()
                                         time.sleep(3)
@@ -771,27 +966,51 @@ try:
                                         output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                         # Find element of Path div
-                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                         # Download Picture for keep in folder
                                         # For Using Water Tank
-                                        for div in div_elements_cooler:
+                                        # for div in div_elements_cooler:
 
-                                            div_text = div.text
-                                            # Use text before "ตู้ทรงยืน"
-                                            number = div_text.split(' ')[0] 
+                                        #     div_text = div.text
+                                        #     # Use text before "ตู้ทรงยืน"
+                                        #     number = div_text.split(' ')[0] 
 
-                                            # Searching Text "รูปหลังทำ"
-                                            after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                        #     # Searching Text "รูปหลังทำ"
+                                        #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
                                             
-                                            if after_use_div:
-                                                # Seraching images part "รูปหลังทำ"
-                                                image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #     if after_use_div:
+                                        #         # Seraching images part "รูปหลังทำ"
+                                        #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #         for idx, img in enumerate(image_elements):
+                                        #             image_url = img.get_attribute("src")
+                                        #             if image_url:
+                                        #                 # File name
+                                        #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                        #                 response = requests.get(image_url, stream=True)
+                                        #                 if response.status_code == 200:
+                                        #                     # Downloading image
+                                        #                     with open(filename, 'wb') as file:
+                                        #                         for chunk in response.iter_content(1024):
+                                        #                             file.write(chunk)
+                                        #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                        #                 else:
+                                        #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                        for div in div_elements_cooler:
+                                                div_text = div.text
+                                                # Use text before "ตู้ทรงยืน"
+                                                number = div_text.split(' ')[0] 
+
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
+                                                
                                                 for idx, img in enumerate(image_elements):
                                                     image_url = img.get_attribute("src")
                                                     if image_url:
-                                                        # File name
-                                                        filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
                                                         
                                                         response = requests.get(image_url, stream=True)
                                                         if response.status_code == 200:
@@ -841,27 +1060,51 @@ try:
                                         output_dir = f"{download_folder_image}/{date}/{number_store_text}"
 
                                         # Find element of Path div
-                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีมทรงยืน')]")
+                                        div_elements_cooler = driver.find_elements(By.XPATH, "//div[contains(text(), 'ตู้ไอศกรีม')]")
 
                                         # Download Picture for keep in folder
                                         # For Using Water Tank
-                                        for div in div_elements_cooler:
+                                        # for div in div_elements_cooler:
 
-                                            div_text = div.text
-                                            # Use text before "ตู้ทรงยืน"
-                                            number = div_text.split(' ')[0] 
+                                        #     div_text = div.text
+                                        #     # Use text before "ตู้ทรงยืน"
+                                        #     number = div_text.split(' ')[0] 
 
-                                            # Searching Text "รูปหลังทำ"
-                                            after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
+                                        #     # Searching Text "รูปหลังทำ"
+                                        #     after_use_div = div.find_elements(By.XPATH, ".//div[contains(text(), 'รูปหลังทำ')]")
                                             
-                                            if after_use_div:
-                                                # Seraching images part "รูปหลังทำ"
-                                                image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #     if after_use_div:
+                                        #         # Seraching images part "รูปหลังทำ"
+                                        #         image_elements = after_use_div[0].find_elements(By.XPATH, ".//img")
+                                        #         for idx, img in enumerate(image_elements):
+                                        #             image_url = img.get_attribute("src")
+                                        #             if image_url:
+                                        #                 # File name
+                                        #                 filename = os.path.join(output_dir, f"{date}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
+                                                        
+                                        #                 response = requests.get(image_url, stream=True)
+                                        #                 if response.status_code == 200:
+                                        #                     # Downloading image
+                                        #                     with open(filename, 'wb') as file:
+                                        #                         for chunk in response.iter_content(1024):
+                                        #                             file.write(chunk)
+                                        #                     print(f"ดาวน์โหลดรูปภาพสำเร็จ: {filename}")
+                                        #                 else:
+                                        #                     print(f"ไม่สามารถดาวน์โหลดรูปภาพจาก {image_url} ได้ (HTTP {response.status_code})")
+
+                                        for div in div_elements_cooler:
+                                                div_text = div.text
+                                                # Use text before "ตู้ทรงยืน"
+                                                number = div_text.split(' ')[0] 
+
+                                                # ค้นหาทุก <img> ใน div โดยไม่สนใจ "รูปหลังทำ"
+                                                image_elements = div.find_elements(By.XPATH, ".//img")
+                                                
                                                 for idx, img in enumerate(image_elements):
                                                     image_url = img.get_attribute("src")
                                                     if image_url:
-                                                        # File name
-                                                        filename = os.path.join(output_dir, f"{number}_ถังน้ำใช้_{idx + 1}.jpg")
+                                                        # File name (ยังคงใช้ "ตู้ทรงนอน" ตามโค้ดเดิม แต่สามารถปรับได้)
+                                                        filename = os.path.join(output_dir, f"{number_store_text}_{number}_ตู้ทรงนอน_{idx + 1}.jpg")
                                                         
                                                         response = requests.get(image_url, stream=True)
                                                         if response.status_code == 200:

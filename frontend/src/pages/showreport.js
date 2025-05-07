@@ -2,7 +2,7 @@ import '../App.css';
 import React from "react";
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import logosearch from "C:\\Users\\Ratti\\myicecreamapp\\frontend\\src\\components\\search.png"
+import logosearch from "../components/search.png"
 
 import { Pie } from 'react-chartjs-2'; // Import Pie component
 import {
@@ -273,25 +273,24 @@ const ShowReport = () => {
         return counts;
     };
 
-    // ใน return ของ component เพิ่มส่วนแสดงผล (เช่น ใต้ Pie Chart)
     const predictionCounts = getPredictionCounts();
 
     const getBranchCorrectnessPieChartData = () => {
         const branchCorrectnessCounts = data.reduce(
             (acc, item) => {
-                const branchCode = item["รหัสร้าน"] || '-';
+                const branchCode = item['รหัสร้าน'] || '-';
                 const branchImages = filteredImages.filter(
                     (img) => img.filename?.startsWith(branchCode + '_')
                 );
 
-                // ตรวจสอบความถูกต้องตามโหมด
                 let hasCorrectPrediction = false;
-                if (mode === 'HORIZONTAL FREEZER ') { // สมมติว่า mode เป็น "Mode 1" หรือ "Mode 2"
+                const normalizedMode = mode.trim(); // ลบช่องว่าง
+                if (normalizedMode === 'HORIZONTAL FREEZER') {
                     const countPredictionOne = branchImages.filter(
                         (img) => img.prediction === 1
                     ).length;
                     hasCorrectPrediction = countPredictionOne >= 1;
-                } else if (mode === 'VERTICAL FREEZER ') {
+                } else if (normalizedMode === 'VERTICAL FREEZER') {
                     const countPredictionTwo = branchImages.filter(
                         (img) => img.prediction === 2
                     ).length;
@@ -308,17 +307,13 @@ const ShowReport = () => {
             { correct: 0, incorrect: 0 }
         );
 
-        // Define chart data
         const chartData = {
-            labels: ['Correct', 'Incorrect'],
+            labels: ['Correct', 'Incorrect'], // เปลี่ยนเป็นภาษาไทย
             datasets: [
                 {
-                    label: 'Branch Correctness',
+                    label: 'ความถูกต้องของสาขา',
                     data: [branchCorrectnessCounts.correct, branchCorrectnessCounts.incorrect],
-                    backgroundColor: [
-                        '#4CAF50', // Green for Correct
-                        '#F44336', // Red for Incorrect
-                    ],
+                    backgroundColor: ['#4CAF50', '#F44336'],
                     borderWidth: 0,
                 },
             ],
@@ -467,9 +462,9 @@ const ShowReport = () => {
                                 (img) => img.filename?.startsWith(branchCode + '_')
                             );
                             if (mode === 'HORIZONTAL FREEZER ') {
-                                return branchImages.filter(img => img.prediction === 1).length > 1;
+                                return branchImages.filter(img => img.prediction === 1).length >= 1;
                             } else if (mode === 'VERTICAL FREEZER ') {
-                                return branchImages.filter(img => img.prediction === 2).length > 1;
+                                return branchImages.filter(img => img.prediction === 2).length >= 1;
                             }
                             return false;
                         }).length} |
@@ -479,9 +474,9 @@ const ShowReport = () => {
                                 (img) => img.filename?.startsWith(branchCode + '_')
                             );
                             if (mode === 'HORIZONTAL FREEZER ') {
-                                return branchImages.filter(img => img.prediction === 1).length <= 1;
+                                return branchImages.filter(img => img.prediction === 1).length < 1;
                             } else if (mode === 'VERTICAL FREEZER ') {
-                                return branchImages.filter(img => img.prediction === 2).length <= 1;
+                                return branchImages.filter(img => img.prediction === 2).length < 1;
                             }
                             return true; // ถ้า mode ไม่ใช่ 1 หรือ 2 นับเป็น incorrect
                         }).length}

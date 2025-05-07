@@ -238,17 +238,24 @@ def login():
     if not user:
         return jsonify({'error': 'Invalid credentials'}), 401
 
-    print(f"Stored password in DB: {user['password']}")  # ✅ Debug จุดนี้
+    print(f"Stored password in DB: {user['password']}")  # ✅ Debug
 
     # ตรวจสอบรหัสผ่านที่ถูกเข้ารหัส
     if bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-        token = jwt.encode({'username': username, 'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)},
-                   app.config['SECRET_KEY'], algorithm="HS256")
+        token = jwt.encode(
+            {
+                'username': username,
+                'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+            },
+            app.config['SECRET_KEY'],
+            algorithm="HS256"
+        )
 
+        # ❌ อย่า decode ถ้า token เป็น str แล้ว
         return jsonify({'token': token, 'role': user['role']})
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
-    
+
 # decode('utf-8')
 
 # API Protected Route
@@ -436,7 +443,7 @@ def getdateshow():
     # กำหนด path สำหรับ CSV
     # csv_file_path = f"C:/Users/Ratti/Documents/IceCreamDetection/{mode}/CSV_file/{start_date}_csv.csv"
     csv_file_path = [
-        f"C:/Users/Ratti/Documents/IceCreamDetection/{mode}/CSV_file/{(start_date + timedelta(days=i)).strftime('%Y-%m-%d')}_csv.csv"
+        f"C:/Users/benjaponsun/Documents/IceCreamDetection/{mode}/CSV_file/{(start_date + timedelta(days=i)).strftime('%Y-%m-%d')}_csv.csv"
         for i in range((end_date - start_date).days + 1)
     ]
 
@@ -445,7 +452,7 @@ def getdateshow():
     CSV_DIR = []
     current_date = start_date
     while current_date <= end_date:
-        dir_path = f"C:/Users/Ratti/Documents/IceCreamDetection/{mode}/CSV_file/{current_date.strftime('%Y-%m-%d')}_csv.csv"
+        dir_path = f"C:/Users/benjaponsun/Documents/IceCreamDetection/{mode}/CSV_file/{current_date.strftime('%Y-%m-%d')}_csv.csv"
         CSV_DIR.append(dir_path)
         current_date += timedelta(days=1)  # เพิ่มวันละ 1
 
@@ -453,7 +460,7 @@ def getdateshow():
     IMAGE_DIR = []
     current_date = start_date
     while current_date <= end_date:
-        dir_path = f"C:/Users/Ratti/Documents/IceCreamDetection/{mode}/IMAGE_file/{current_date.strftime('%Y-%m-%d')}"
+        dir_path = f"C:/Users/benjaponsun/Documents/IceCreamDetection/{mode}/IMAGE_file/{current_date.strftime('%Y-%m-%d')}"
         IMAGE_DIR.append(dir_path)
         current_date += timedelta(days=1)  # เพิ่มวันละ 1
 
@@ -489,7 +496,7 @@ def get_report_info():
 
 # ---------------------------- AI PREDICTION Part
 
-model_path = "C:/Users/Ratti/myicecreamapp/backend/resnet50_checkpoint_0.pth"
+model_path = "resnet50_checkpoint.pth"
 
 # โหลดโครงสร้าง ResNet50 (ใช้ `weights=None` แทน `pretrained=False`)
 model = models.resnet50(weights=None)
@@ -505,7 +512,7 @@ model.fc = torch.nn.Linear(2048, num_classes)  # แก้ output layer
 model.load_state_dict(checkpoint["model_state_dict"])
 model.eval()  # ตั้งค่าเป็นโหมดประเมินผล
 
-STATIC_DIR = "C:/Users/Ratti/myicecreamapp/backend/static/images"
+STATIC_DIR = "static/images"
 
 # ตรวจสอบว่า static folder มีอยู่หรือไม่
 if not os.path.exists(STATIC_DIR):
